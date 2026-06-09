@@ -155,9 +155,14 @@ app.put('/api/entries/:id', authMiddleware, async (req, res) => {
 
 const cors = require('cors');
 
+const cors = require('cors');
+
+// Purane cors() ko isse replace karo
 app.use(cors({
-    origin: 'https://digital-journal-beryl.vercel.app', // Tumhara exact Vercel URL
-    credentials: true
+    origin: 'https://digital-journal-beryl.vercel.app', // Tumhara exact Vercel link
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 // ==================== SERVER START ====================
 const PORT = process.env.PORT || 5000;
