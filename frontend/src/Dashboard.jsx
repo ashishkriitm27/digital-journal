@@ -24,7 +24,7 @@ export default function Dashboard({ user, onLogout }) {
   const fetchEntries = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/entries', {
+      const response = await axios.get('https://digital-journal-b2h1.onrender.com/api/entries', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setEntries(response.data.entries);
@@ -46,7 +46,7 @@ export default function Dashboard({ user, onLogout }) {
     try {
       if (isEditing) {
         // =============== UPDATE MODE ===============
-        const response = await axios.put(`http://localhost:5000/api/entries/${editId}`, 
+        const response = await axios.put(`https://digital-journal-b2h1.onrender.com/api/entries/${editId}`, 
           { title, category, content },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -56,7 +56,7 @@ export default function Dashboard({ user, onLogout }) {
         }
       } else {
         // =============== CREATE MODE ===============
-        await axios.post('http://localhost:5000/api/entries', 
+        await axios.post('https://digital-journal-b2h1.onrender.com/api/entries', 
           { title, category, content },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -92,7 +92,7 @@ export default function Dashboard({ user, onLogout }) {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/entries/${id}`, {
+      await axios.delete(`https://digital-journal-b2h1.onrender.com/api/entries/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchEntries(); // Delete hone ke baad list refresh
