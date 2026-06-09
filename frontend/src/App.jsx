@@ -16,7 +16,7 @@ export default function App() {
       if (token) {
         try {
           // Token ko headers mein bhej rahe hain verification ke liye
-          const response = await axios.get('http://localhost:5000/api/auth/me', {
+          const response = await axios.get('https://digital-journal-b2h1.onrender.com/api/auth/me', {
             headers: { Authorization: `Bearer ${token}` }
           });
           
@@ -36,7 +36,7 @@ export default function App() {
     const googleToken = credentialResponse.credential;
     
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/google', {
+      const response = await axios.post('https://digital-journal-b2h1.onrender.com/api/auth/google', {
         token: googleToken
       });
 
