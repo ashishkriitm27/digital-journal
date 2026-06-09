@@ -5,13 +5,20 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('./models/User');
-const Entry = require('./models/Entry'); // Naya entry model link kiya
+const Entry = require('./models/Entry'); 
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// ==================== CORRECT CORS CONFIGURATION ====================
+app.use(cors({
+    origin: 'https://digital-journal-beryl.vercel.app', // Tumhara exact Vercel link
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -20,14 +27,13 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.error("Database connection error:", err));
 
 // ==================== AUTH MIDDLEWARE ====================
-// Yeh middleware ensure karega ki sirf logged-in user hi apni entries chhed sake
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "No token provided, authorization denied!" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId; // Request mein userId attach kar di
+    req.userId = decoded.userId; 
     next();
   } catch (error) {
     res.status(401).json({ message: "Token invalid hai!" });
@@ -86,7 +92,7 @@ app.post('/api/auth/google', async (req, res) => {
 
 // ==================== CRUD OPERATIONS (FOR JOURNAL ENTRIES) ====================
 
-// 3. CREATE: Nayi entry save karna (Sirf usi user ke account mein jayegi jo login hai)
+// 3. CREATE
 app.post('/api/entries', authMiddleware, async (req, res) => {
   const { title, category, content } = req.body;
   
@@ -96,7 +102,7 @@ app.post('/api/entries', authMiddleware, async (req, res) => {
 
   try {
     const newEntry = new Entry({
-      user: req.userId, // Auth middleware se mili hui logged-in user id
+      user: req.userId, 
       title,
       category,
       content
@@ -109,10 +115,9 @@ app.post('/api/entries', authMiddleware, async (req, res) => {
   }
 });
 
-// 4. READ: Sirf logged-in user ki entries fetch karna (Baki users ka data nahi dikhega)
+// 4. READ
 app.get('/api/entries', authMiddleware, async (req, res) => {
   try {
-    // Sirf wahi entries find karo jahan user match kare req.userId se
     const entries = await Entry.find({ user: req.userId }).sort({ createdAt: -1 });
     res.status(200).json({ entries });
   } catch (error) {
@@ -120,7 +125,7 @@ app.get('/api/entries', authMiddleware, async (req, res) => {
   }
 });
 
-// 5. DELETE: Kisi entry ko delete karna
+// 5. DELETE
 app.delete('/api/entries/:id', authMiddleware, async (req, res) => {
   try {
     const entry = await Entry.findOneAndDelete({ _id: req.params.id, user: req.userId });
@@ -131,16 +136,16 @@ app.delete('/api/entries/:id', authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Delete karne mein error aaya." });
   }
 });
-// 6. UPDATE: Kisi existing entry ko edit/update karna
+
+// 6. UPDATE
 app.put('/api/entries/:id', authMiddleware, async (req, res) => {
   const { title, category, content } = req.body;
   
   try {
-    // Sirf wahi entry update ho jo is user ki ho
     const updatedEntry = await Entry.findOneAndUpdate(
       { _id: req.params.id, user: req.userId },
       { title, category, content },
-      { new: true } // Isse updated data return hota hai
+      { new: true } 
     );
 
     if (!updatedEntry) {
@@ -153,17 +158,6 @@ app.put('/api/entries/:id', authMiddleware, async (req, res) => {
   }
 });
 
-const cors = require('cors');
-
-const cors = require('cors');
-
-// Purane cors() ko isse replace karo
-app.use(cors({
-    origin: 'https://digital-journal-beryl.vercel.app', // Tumhara exact Vercel link
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
 // ==================== SERVER START ====================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
