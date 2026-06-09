@@ -153,7 +153,12 @@ app.put('/api/entries/:id', authMiddleware, async (req, res) => {
   }
 });
 
+const cors = require('cors');
 
+app.use(cors({
+    origin: 'https://digital-journal-beryl.vercel.app', // Tumhara exact Vercel URL
+    credentials: true
+}));
 // ==================== SERVER START ====================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
